@@ -41,6 +41,7 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	if not Engine.is_editor_hint():
 		time_of_day = fmod(time_of_day + delta * 0.02, 24.0)
+	_apply_moon_stars_for_time(0.0)
 
 func _apply_season_preset() -> void:
 	var mat := _get_sky_mat()
@@ -113,9 +114,6 @@ func _sync_bruneton_moon_stars(sky_mat: ShaderMaterial, night_factor: float = 1.
 	sky_mat.set_shader_parameter("moon_size", moon_size_val)
 	sky_mat.set_shader_parameter("stars_intensity", stars_intensity_val * nf)
 	sky_mat.set_shader_parameter("night_haziness", night_haziness_val)
-
-func _process(_delta: float) -> void:
-	_apply_moon_stars_for_time(0.0)
 
 func _get_active_sky_shader_material() -> ShaderMaterial:
 	for child in get_children():
