@@ -120,17 +120,14 @@ func create_pipeline(block_dimensions : Array, descriptor_sets : Array, shader :
 
 ## Returns a [PackedFloat32Array] from the provided data, whose size is rounded up to the nearest
 ## multiple of 16
-static func create_push_constant(data : Array) -> PackedByteArray:
-	var packed_size := len(data)*4
-	assert(packed_size <= 128, 'Push constant size must be at most 128 bytes!')
-
-	var padding := ceili(packed_size/16.0)*16 - packed_size
-	var packed_data := PackedByteArray();
-	packed_data.resize(packed_size + (padding if padding > 0 else 0));
-	packed_data.fill(0);
-
-	for i in range(len(data)):
+## Packs push-constant values to their exact byte size (4-byte scalar alignment).
+static func create_push_constant(data: Array) -> PackedByteArray:
+	var packed_size := data.size() * 4
+	assert(packed_size <= 128, "Push constant size must be at most 128 bytes.")
+	var packed_data := PackedByteArray()
+	packed_data.resize(packed_size)
+	for i in range(data.size()):
 		match typeof(data[i]):
-			TYPE_INT, TYPE_BOOL:   packed_data.encode_s32(i*4, data[i])
-			TYPE_FLOAT: packed_data.encode_float(i*4, data[i])
+			TYPE_INT, TYPE_BOOL: packed_data.encode_s32(i * 4, data[i])
+			TYPE_FLOAT: packed_data.encode_float(i * 4, data[i])
 	return packed_data
