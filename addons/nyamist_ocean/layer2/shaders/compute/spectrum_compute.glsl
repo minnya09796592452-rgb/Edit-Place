@@ -28,6 +28,7 @@ layout(push_constant) restrict readonly uniform PushConstants {
 	float detail;
 	float spread;
 	uint cascade_index;
+	uint spectrum_model;
 };
 
 // --- HELPER FUNCTIONS ---
@@ -110,8 +111,19 @@ vec2 get_spectrum_amplitude(in ivec2 id, in ivec2 map_size) {
 	vec2 dispersion = dispersion_relation(k);
 	float w = dispersion[0];
 	float w_norm = dispersion[1] / k * dk.x*dk.y;
-	float s = TMA_spectrum(w, peak_frequency, alpha);
-	float d = mix(0.5/PI, hasselmann_directional_spread(w, peak_frequency, wind_speed, theta), 1.0 - spread) * exp(-(1.0-detail)*(1.0-detail) * k*k);
+	float s;
+	float d;
+	if (spectrum_model == 0U) {
+		float largest_wave = wind_speed * wind_speed / G;
+		float small_wave = largest_wave * 0.001;
+		vec2 wind_dir = vec2(cos(angle), sin(angle));
+		float directional = dot(normalize(k_vec), wind_dir);
+		s = 0.0081 * exp(-1.0 / max(k*k*largest_wave*largest_wave, 1e-6)) * directional*directional * exp(-k*k*small_wave*small_wave) / (k*k*k*k);
+		d = 1.0;
+	} else {
+		s = TMA_spectrum(w, peak_frequency, alpha);
+		d = mix(0.5/PI, hasselmann_directional_spread(w, peak_frequency, wind_speed, theta), 1.0 - spread) * exp(-(1.0-detail)*(1.0-detail) * k*k);
+	}
 	return gaussian(hash(uvec2(id + seed))) * sqrt(2.0 * s * d * w_norm);
 }
 
