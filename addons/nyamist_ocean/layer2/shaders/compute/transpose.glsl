@@ -1,6 +1,6 @@
-// Adapted from 2Retr0/GodotOceanWaves (MIT); see THIRD_PARTY_LICENSES.
 #[compute]
 #version 450
+// Adapted from 2Retr0/GodotOceanWaves (MIT); see THIRD_PARTY_LICENSES.
 /** 
  * A memory-efficient coalesced matrix transpose kernel. 
  * Source: https://developer.nvidia.com/blog/efficient-matrix-transpose-cuda-cc/
