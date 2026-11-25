@@ -22,7 +22,7 @@ var _readback_pending: Array[bool] = [false, false, false, false]
 
 func _ready() -> void:
 	_ensure_grid_settings()
-	cpu_buffer.configure(GRID_COUNT, Vector2i(map_size, map_size))
+	cpu_buffer.configure(CPU_READBACK_GRID_COUNT, Vector2i(map_size, map_size))
 	var rd := RenderingServer.get_rendering_device()
 	if rd == null:
 		push_error("WaveSpectrum requires a RenderingDevice. Compatibility renderer is not supported.")
