@@ -1,6 +1,6 @@
-// Adapted from 2Retr0/GodotOceanWaves (MIT); see THIRD_PARTY_LICENSES.
 #[compute]
 #version 450
+// Adapted from 2Retr0/GodotOceanWaves (MIT); see THIRD_PARTY_LICENSES.
 /** 
  * A coalesced decimation-in-time Stockham FFT kernel. 
  * Source: http://wwwa.pikara.ne.jp/okojisan/otfft-en/stockham3.html
