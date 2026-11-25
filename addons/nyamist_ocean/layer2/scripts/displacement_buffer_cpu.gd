@@ -8,66 +8,67 @@ const SLOT_READ := 1
 const GRID_COUNT := 4
 
 class GridFrame extends RefCounted:
-\tvar x
-\tvar y
-\tvar z
+	var x
 
-\tfunc _init() -> void:
-\t\tx = InterpolatedField.new()
-\t\ty = InterpolatedField.new()
-\t\tz = InterpolatedField.new()
+	var y
+	var z
 
-\tfunc resize(grid_size: Vector2i) -> void:
-\t\tx.resize(grid_size)
-\t\ty.resize(grid_size)
-\t\tz.resize(grid_size)
+	func _init() -> void:
+		x = InterpolatedField.new()
+		y = InterpolatedField.new()
+		z = InterpolatedField.new()
+
+	func resize(grid_size: Vector2i) -> void:
+		x.resize(grid_size)
+		y.resize(grid_size)
+		z.resize(grid_size)
 
 var _grid_slots: Array = []
 var _grid_size := Vector2i.ZERO
 
 func configure(grid_count: int, grid_size: Vector2i) -> void:
-\tassert(grid_count == GRID_COUNT, "CPU displacement buffer expects four grid slots.")
-\tassert(grid_size.x > 0 and grid_size.y > 0)
-\t_grid_size = grid_size
-\t_grid_slots.clear()
-\tfor _grid_index in range(grid_count):
-\t\tvar write_frame := GridFrame.new()
-\t\tvar read_frame := GridFrame.new()
-\t\twrite_frame.resize(_grid_size)
-\t\tread_frame.resize(_grid_size)
-\t\t_grid_slots.append([write_frame, read_frame])
+	assert(grid_count == GRID_COUNT, "CPU displacement buffer expects four grid slots.")
+	assert(grid_size.x > 0 and grid_size.y > 0)
+	_grid_size = grid_size
+	_grid_slots.clear()
+	for _grid_index in range(grid_count):
+		var write_frame := GridFrame.new()
+		var read_frame := GridFrame.new()
+		write_frame.resize(_grid_size)
+		read_frame.resize(_grid_size)
+		_grid_slots.append([write_frame, read_frame])
 
 func write_grid_rgba16f(grid_index: int, bytes: PackedByteArray) -> bool:
-\tif not _is_valid_grid(grid_index):
-\t\treturn false
-\tvar expected_bytes := _grid_size.x * _grid_size.y * 8
-\tif bytes.size() != expected_bytes:
-\t\tpush_warning("Displacement readback size mismatch for grid %d: expected %d, got %d." % [grid_index, expected_bytes, bytes.size()])
-\t\treturn false
-\tvar frame: GridFrame = _grid_slots[grid_index][SLOT_WRITE]
-\tfor y_index in range(_grid_size.y):
-\t\tfor x_index in range(_grid_size.x):
-\t\t\tvar offset := (y_index * _grid_size.x + x_index) * 8
-\t\t\tframe.x.set_value(x_index, y_index, bytes.decode_half(offset))
-\t\t\tframe.y.set_value(x_index, y_index, bytes.decode_half(offset + 2))
-\t\t\tframe.z.set_value(x_index, y_index, bytes.decode_half(offset + 4))
-\treturn true
+	if not _is_valid_grid(grid_index):
+		return false
+	var expected_bytes := _grid_size.x * _grid_size.y * 8
+	if bytes.size() != expected_bytes:
+		push_warning("Displacement readback size mismatch for grid %d: expected %d, got %d." % [grid_index, expected_bytes, bytes.size()])
+		return false
+	var frame: GridFrame = _grid_slots[grid_index][SLOT_WRITE]
+	for y_index in range(_grid_size.y):
+		for x_index in range(_grid_size.x):
+			var offset := (y_index * _grid_size.x + x_index) * 8
+			frame.x.set_value(x_index, y_index, bytes.decode_half(offset))
+			frame.y.set_value(x_index, y_index, bytes.decode_half(offset + 2))
+			frame.z.set_value(x_index, y_index, bytes.decode_half(offset + 4))
+	return true
 
 func publish_grid(grid_index: int) -> void:
-\tassert(_is_valid_grid(grid_index))
-\tvar slots: Array = _grid_slots[grid_index]
-\tvar previous_read: GridFrame = slots[SLOT_READ]
-\tslots[SLOT_READ] = slots[SLOT_WRITE]
-\tslots[SLOT_WRITE] = previous_read
+	assert(_is_valid_grid(grid_index))
+	var slots: Array = _grid_slots[grid_index]
+	var previous_read: GridFrame = slots[SLOT_READ]
+	slots[SLOT_READ] = slots[SLOT_WRITE]
+	slots[SLOT_WRITE] = previous_read
 
 func sample_displacement(grid_index: int, uv: Vector2) -> Vector3:
-\tif not _is_valid_grid(grid_index):
-\t\treturn Vector3.ZERO
-\tvar frame: GridFrame = _grid_slots[grid_index][SLOT_READ]
-\treturn Vector3(frame.x.sample_uv(uv), frame.y.sample_uv(uv), frame.z.sample_uv(uv))
+	if not _is_valid_grid(grid_index):
+		return Vector3.ZERO
+	var frame: GridFrame = _grid_slots[grid_index][SLOT_READ]
+	return Vector3(frame.x.sample_uv(uv), frame.y.sample_uv(uv), frame.z.sample_uv(uv))
 
 func get_grid_size() -> Vector2i:
-\treturn _grid_size
+	return _grid_size
 
 func _is_valid_grid(grid_index: int) -> bool:
-\treturn grid_index >= 0 and grid_index < _grid_slots.size()
+	return grid_index >= 0 and grid_index < _grid_slots.size()
