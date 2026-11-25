@@ -106,9 +106,7 @@ func update(delta: float, parameters: Array[NyaWaveGridSettings]) -> void:
 	assert(parameters.size() == 4, "Layer 2 requires exactly four grid settings.")
 	if not gpu_ready:
 		return
-	if not context:
-		init_gpu(maxi(2, len(parameters))) # FIXME: This is needed because my RenderContext API sucks...
-	elif pass_num_cascades_remaining != 0: # Update cascades from previous invocation that have yet to be processed...
+	if pass_num_cascades_remaining != 0: # Update cascades from previous invocation that have yet to be processed...
 		var compute_list := context.compute_list_begin()
 		for i in range(pass_num_cascades_remaining):
 			_update(compute_list, i, pass_parameters)
