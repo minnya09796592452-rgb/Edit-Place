@@ -33,6 +33,7 @@ var _surface: MeshInstance3D
 var _material: ShaderMaterial
 var _wave_spectrum: WaveSpectrum
 var _fft_readback_ready := false
+var _fft_readback_counts: Array[int] = [0, 0, 0]
 
 
 func _ready() -> void:
@@ -40,6 +41,8 @@ func _ready() -> void:
 	if not Engine.is_editor_hint() and enable_layer2_fft:
 		_start_layer2_fft()
 	set_process(true)
+	if not Engine.is_editor_hint():
+		call_deferred("_run_runtime_diagnostics")
 
 
 func _process(delta: float) -> void:
@@ -94,9 +97,10 @@ func _safe_direction(direction: Vector2) -> Vector2:
 
 
 func _start_layer2_fft() -> void:
+	print("[NYAMIST-DIAG] Layer 2 FFT startup requested.")
 	_wave_spectrum = WAVE_SPECTRUM_SCRIPT.new() as WaveSpectrum
 	if _wave_spectrum == null:
-		push_error("OceanLayer could not create the Layer 2 WaveSpectrum controller.")
+		push_error("[NYAMIST-DIAG] Could not instantiate the Layer 2 WaveSpectrum controller.")
 		return
 
 	_wave_spectrum.name = "WaveSpectrum"
@@ -105,13 +109,17 @@ func _start_layer2_fft() -> void:
 
 	var displacement_maps: Texture2DArrayRD = _wave_spectrum.get_gpu_displacement_maps()
 	if displacement_maps == null:
-		push_warning("Layer 2 FFT did not provide a GPU displacement texture; Layer 1 sine waves remain active.")
+		push_error("[NYAMIST-DIAG] WaveSpectrum returned no GPU displacement texture. Layer 1 sine displacement remains selected.")
+		return
+
+	if _material == null:
+		push_error("[NYAMIST-DIAG] Ocean ShaderMaterial is missing; FFT texture cannot be assigned.")
 		return
 
 	_material.set_shader_parameter("displacement_maps", displacement_maps)
 	_material.set_shader_parameter("use_fft_displacement", true)
 	_apply_fft_grid_settings()
-	print("NYAMIST Ocean: Layer 1 surface connected to Layer 2 four-grid FFT displacement.")
+	print("[NYAMIST-DIAG] Layer 2 GPU displacement texture assigned to OceanSurface shader.")
 
 
 func _apply_fft_grid_settings() -> void:
@@ -120,7 +128,7 @@ func _apply_fft_grid_settings() -> void:
 
 	var settings: Array = _wave_spectrum.grid_settings
 	if settings.size() != 4:
-		push_warning("Layer 2 expects exactly four grid settings; using shader defaults.")
+		push_error("[NYAMIST-DIAG] Expected four FFT grid settings; found %d." % settings.size())
 		return
 
 	var tile_lengths_x := Vector4.ZERO
@@ -135,10 +143,17 @@ func _apply_fft_grid_settings() -> void:
 	_material.set_shader_parameter("grid_tile_lengths_x", tile_lengths_x)
 	_material.set_shader_parameter("grid_tile_lengths_y", tile_lengths_y)
 	_material.set_shader_parameter("grid_displacement_scales", displacement_scales)
+	print("[NYAMIST-DIAG] FFT grid settings applied: ", tile_lengths_x, " / ", tile_lengths_y)
 
 
-func _on_fft_grid_readback_completed(_grid_index: int) -> void:
+func _on_fft_grid_readback_completed(grid_index: int) -> void:
+	if grid_index < 0 or grid_index >= _fft_readback_counts.size():
+		push_warning("[NYAMIST-DIAG] Unexpected CPU readback grid index: %d." % grid_index)
+		return
 	_fft_readback_ready = true
+	_fft_readback_counts[grid_index] += 1
+	if _fft_readback_counts[grid_index] == 1:
+		print("[NYAMIST-DIAG] First CPU displacement readback received for grid %d." % grid_index)
 
 
 func _create_surface() -> void:
@@ -162,7 +177,42 @@ func _create_surface() -> void:
 	_material = ShaderMaterial.new()
 	_material.shader = load("res://shaders/ocean_layer.gdshader")
 	_surface.material_override = _material
+	if _material.shader == null:
+		push_error("[NYAMIST-DIAG] Could not load res://shaders/ocean_layer.gdshader.")
 	_update_material_parameters()
+
+
+func _run_runtime_diagnostics() -> void:
+	await get_tree().process_frame
+	print("========== NYAMIST OCEAN RUNTIME DIAGNOSTICS ==========")
+
+	var camera := get_viewport().get_camera_3d()
+	if camera == null:
+		push_error("[NYAMIST-DIAG] No active Camera3D found in the current viewport.")
+	else:
+		var forward := -camera.global_transform.basis.z
+		if forward.y >= -0.02:
+			var previous_pitch := rad_to_deg(camera.rotation.x)
+			camera.rotation.x = maxf(camera.rotation.x, deg_to_rad(15.0))
+			forward = -camera.global_transform.basis.z
+			print("[NYAMIST-DIAG] Camera was not looking down at the ocean (pitch %.2f deg); adjusted pitch to %.2f deg." % [previous_pitch, rad_to_deg(camera.rotation.x)])
+		print("[NYAMIST-DIAG] Camera current=%s position=%s forward=%s" % [camera.current, camera.global_position, forward])
+
+	if _surface == null or not is_instance_valid(_surface):
+		push_error("[NYAMIST-DIAG] OceanSurface MeshInstance3D was not created.")
+	else:
+		print("[NYAMIST-DIAG] OceanSurface visible=%s mesh=%s material=%s" % [_surface.visible, _surface.mesh, _surface.material_override])
+		if _surface.mesh == null:
+			push_error("[NYAMIST-DIAG] OceanSurface has no Mesh resource.")
+		if _material == null or _material.shader == null:
+			push_error("[NYAMIST-DIAG] OceanSurface ShaderMaterial or shader is missing.")
+		else:
+			print("[NYAMIST-DIAG] Ocean shader loaded: %s" % _material.shader.resource_path)
+
+	var rd := RenderingServer.get_rendering_device()
+	print("[NYAMIST-DIAG] RenderingDevice available=%s renderer=%s" % [rd != null, RenderingServer.get_current_rendering_method()])
+	print("[NYAMIST-DIAG] Ocean level now=%.3f; FFT enabled=%s; FFT readbacks=%s" % [global_position.y, enable_layer2_fft, _fft_readback_counts])
+	print("========== END NYAMIST OCEAN RUNTIME DIAGNOSTICS ==========")
 
 
 func _update_material_parameters() -> void:
