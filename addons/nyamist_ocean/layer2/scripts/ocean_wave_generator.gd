@@ -83,7 +83,7 @@ func _update(compute_list : int, cascade_index : int, parameters : Array[NyaWave
 	if params.should_generate_spectrum:
 		var alpha := JONSWAP_alpha(params.wind_speed, params.fetch_length*1e3)
 		var omega := JONSWAP_peak_angular_frequency(params.wind_speed, params.fetch_length*1e3)
-		pipelines[&'spectrum_compute'].call(context, compute_list, NyaRenderingContext.create_push_constant([params.spectrum_seed.x, params.spectrum_seed.y, params.tile_length.x, params.tile_length.y, alpha, omega, params.wind_speed, deg_to_rad(params.wind_direction), DEPTH, params.swell, params.detail, params.spread, cascade_index]))
+		pipelines[&'spectrum_compute'].call(context, compute_list, NyaRenderingContext.create_push_constant([params.spectrum_seed.x, params.spectrum_seed.y, params.tile_length.x, params.tile_length.y, alpha, omega, params.wind_speed, deg_to_rad(params.wind_direction), DEPTH, params.swell, params.detail, params.spread, cascade_index, params.spectrum_model]))
 		params.should_generate_spectrum = false
 	pipelines[&'spectrum_modulate'].call(context, compute_list, NyaRenderingContext.create_push_constant([params.tile_length.x, params.tile_length.y, DEPTH, params.time, cascade_index]))
 
