@@ -25,6 +25,10 @@ These are conservative starting settings, not a claim that every Android driver 
 
 This backend is intentionally not attached to `Atmosphere.tscn` yet. Existing Layer 1 OceanLayer, WorldEnvironment, Sky, Sun, Fog, and Moon remain unchanged. After Android runtime verification, connect Layer 2 through a small adapter without replacing the current Layer 1 API.
 
+## Android GPU smoke test
+
+Open `tests/Layer2GpuSmokeTest.tscn` in Godot 4.7.2 and run the current scene. The Output panel should report successful asynchronous CPU readbacks for grids 0, 1, and 2. Grid 3 is intentionally not read back. This checks pipeline startup and readback delivery; it does not yet verify visual surface displacement or performance.
+
 ## CPU tests
 
 Run from the project root with a Godot 4.7 executable:
