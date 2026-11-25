@@ -1,6 +1,6 @@
-// Adapted from 2Retr0/GodotOceanWaves (MIT); see THIRD_PARTY_LICENSES.
 #[compute]
 #version 450
+// Adapted from 2Retr0/GodotOceanWaves (MIT); see THIRD_PARTY_LICENSES.
 /** 
  * Unpacks the IFFT outputs from the modulation stage and creates
  * the output displacement and normal maps.
