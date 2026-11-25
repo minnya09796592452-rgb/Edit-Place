@@ -1,6 +1,6 @@
-// Adapted from 2Retr0/GodotOceanWaves (MIT); see THIRD_PARTY_LICENSES.
 #[compute]
 #version 450
+// Adapted from 2Retr0/GodotOceanWaves (MIT); see THIRD_PARTY_LICENSES.
 /**
  * Generates a 2D texture representing the JONSWAP wave spectra
  * w/ Hasselmann directional spreading.
