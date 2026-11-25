@@ -1,6 +1,6 @@
-// Adapted from 2Retr0/GodotOceanWaves (MIT); see THIRD_PARTY_LICENSES.
 #[compute]
 #version 450
+// Adapted from 2Retr0/GodotOceanWaves (MIT); see THIRD_PARTY_LICENSES.
 /** Precomputes the butterfly factors for a Stockham FFT kernel */
 
 #define PI (3.141592653589793)
