@@ -18,7 +18,7 @@ var wave_generator: NyaWaveGenerator
 
 var _elapsed_seconds := 0.0
 var _next_update_time := 0.0
-var _readback_pending: Array[bool] = [false, false, false, false]
+var _readback_pending: Array[bool] = [false, false, false]
 
 func _ready() -> void:
 	_ensure_grid_settings()
@@ -77,6 +77,7 @@ func _ensure_grid_settings() -> void:
 		if grid_settings[index] == null:
 			grid_settings[index] = NyaWaveGridSettings.new()
 			grid_settings[index].tile_length = DEFAULT_TILE_LENGTHS[index]
+		if grid_settings[index].spectrum_seed == Vector2i.ZERO:
 			grid_settings[index].spectrum_seed = Vector2i(1013 + index * 1999, 7919 + index * 3571)
 
 func _on_cascade_updated(grid_index: int) -> void:
