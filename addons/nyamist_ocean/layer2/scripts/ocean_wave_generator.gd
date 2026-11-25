@@ -113,6 +113,8 @@ func update(delta: float, parameters: Array[NyaWaveGridSettings]) -> void:
 		for i in range(pass_num_cascades_remaining):
 			_update(compute_list, i, pass_parameters)
 		context.compute_list_end()
+		for i in range(pass_num_cascades_remaining):
+			cascade_updated.emit(i)
 
 	# Update each cascade's parameters that rely on time delta
 	for i in len(parameters):
