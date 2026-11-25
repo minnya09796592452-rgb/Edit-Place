@@ -3,10 +3,12 @@ extends SceneTree
 
 const InterpolatedArray2f = preload("res://addons/nyamist_ocean/layer2/scripts/interpolated_array2f.gd")
 const DisplacementBufferCPU = preload("res://addons/nyamist_ocean/layer2/scripts/displacement_buffer_cpu.gd")
+const PhillipsSpectrum = preload("res://addons/nyamist_ocean/layer2/scripts/phillips_spectrum.gd")
 
 func _initialize() -> void:
 	_test_bilinear_interpolation()
 	_test_cpu_double_buffer()
+	_test_phillips_spectrum()
 	print("NYAMIST Layer 2 CPU tests passed.")
 	quit(0)
 
@@ -36,3 +38,8 @@ func _test_cpu_double_buffer() -> void:
 	assert(buffer.sample_displacement(0, Vector2.ZERO) == Vector3.ZERO)
 	buffer.publish_grid(0)
 	assert(buffer.sample_displacement(0, Vector2.ZERO).is_equal_approx(Vector3(1.0, 11.0, 21.0)))
+
+func _test_phillips_spectrum() -> void:
+	var energy: float = PhillipsSpectrum.evaluate(Vector2(0.1, 0.2), 8.0, 0.0)
+	assert(is_finite(energy) and energy >= 0.0)
+	assert(PhillipsSpectrum.evaluate(Vector2.ZERO, 8.0, 0.0) == 0.0)
