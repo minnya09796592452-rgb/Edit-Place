@@ -8,6 +8,7 @@
 [ext_resource type="Texture2D" uid="uid://1nwc70oy8kip" path="res://assets/clouds/Overcast_ID108.png" id="6_overcast"]
 [ext_resource type="Texture2D" uid="uid://by863eqwkiifo" path="res://assets/sky/MoonPhase5_ID107.png" id="88_moon_tex"]
 [ext_resource type="Texture2D" uid="uid://dojto1fusy3dw" path="res://assets/sky/stars_texture_ID70.png" id="89_stars_tex"]
+[ext_resource type="Script" path="res://scripts/ocean_layer.gd" id="7_ocean_layer"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_sky"]
 shader = ExtResource("2_sky_sdr")
@@ -80,6 +81,9 @@ visible = false
 
 [node name="SunLightTestSphere" type="MeshInstance3D" parent="." unique_id=1271867]
 mesh = SubResource("SphereMesh_test")
+
+[node name="OceanLayer" type="Node3D" parent="." unique_id=2100000001]
+script = ExtResource("7_ocean_layer")
 
 [node name="Camera3D" type="Camera3D" parent="." unique_id=901422623]
 transform = Transform3D(1, 0, 0, 0, 0.965926, 0.258819, 0, -0.258819, 0.965926, 0, 2, 6)
