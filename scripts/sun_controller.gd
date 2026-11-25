@@ -79,9 +79,9 @@ func _update_atmosphere() -> void:
 		sun.rotation_degrees = Vector3(-rad_to_deg(asin(clamp(elev, -1.0, 1.0))), latitude, 0.0)
 		var day_f := clampf((elev + 0.12) / 0.35, 0.0, 1.0)
 		var storm := 0.0
-		var mat := _get_sky_mat()
-		if mat:
-			storm = float(mat.get_shader_parameter("storm_intensity"))
+		var storm_mat := _get_sky_mat()
+		if storm_mat:
+			storm = float(storm_mat.get_shader_parameter("storm_intensity"))
 		sun.light_energy = lerpf(0.0, 1.41 * (1.0 - storm * 0.72), day_f)
 
 	var mat := _get_sky_mat()
