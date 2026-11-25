@@ -4,7 +4,7 @@ class_name DisplacementBufferCPU
 
 const SLOT_WRITE := 0
 const SLOT_READ := 1
-const GRID_COUNT := 4
+const CPU_GRID_COUNT := 3
 
 class GridFrame extends RefCounted:
 	const InterpolatedField = preload("res://addons/nyamist_ocean/layer2/scripts/interpolated_array2f.gd")
@@ -26,7 +26,7 @@ var _grid_slots: Array = []
 var _grid_size := Vector2i.ZERO
 
 func configure(grid_count: int, grid_size: Vector2i) -> void:
-	assert(grid_count == GRID_COUNT, "CPU displacement buffer expects four grid slots.")
+	assert(grid_count == CPU_GRID_COUNT, "CPU displacement buffer stores only grids 0–2.")
 	assert(grid_size.x > 0 and grid_size.y > 0)
 	_grid_size = grid_size
 	_grid_slots.clear()
