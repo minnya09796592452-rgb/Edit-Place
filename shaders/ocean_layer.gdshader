@@ -15,15 +15,31 @@ uniform vec2 secondary_wave_direction = vec2(-0.35, 1.0);
 uniform float wave_speed = 1.0;
 uniform float secondary_wave_speed = 1.35;
 
+uniform sampler2DArray displacement_maps : filter_linear;
+uniform bool use_fft_displacement = false;
+uniform vec4 grid_tile_lengths_x = vec4(512.0, 128.0, 32.0, 8.0);
+uniform vec4 grid_tile_lengths_y = vec4(512.0, 128.0, 32.0, 8.0);
+uniform vec4 grid_displacement_scales = vec4(1.0);
+
 void vertex() {
 	vec3 world_position = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
-	vec2 dir_a = normalize(wave_direction);
-	vec2 dir_b = normalize(secondary_wave_direction);
 
-	float wave_a = sin(dot(world_position.xz, dir_a) * wave_frequency + wave_time * wave_speed);
-	float wave_b = sin(dot(world_position.xz, dir_b) * secondary_wave_frequency + wave_time * secondary_wave_speed);
-
-	VERTEX.y += (wave_a * wave_amplitude) + (wave_b * secondary_wave_amplitude);
+	if (use_fft_displacement) {
+		vec3 fft_displacement = vec3(0.0);
+		for (int grid_index = 0; grid_index < 4; grid_index++) {
+			vec2 tile_length = vec2(grid_tile_lengths_x[grid_index], grid_tile_lengths_y[grid_index]);
+			vec2 grid_uv = fract(world_position.xz / max(tile_length, vec2(0.001)));
+			vec3 grid_displacement = textureLod(displacement_maps, vec3(grid_uv, float(grid_index)), 0.0).xyz;
+			fft_displacement += grid_displacement * grid_displacement_scales[grid_index];
+		}
+		VERTEX += fft_displacement;
+	} else {
+		vec2 dir_a = normalize(wave_direction);
+		vec2 dir_b = normalize(secondary_wave_direction);
+		float wave_a = sin(dot(world_position.xz, dir_a) * wave_frequency + wave_time * wave_speed);
+		float wave_b = sin(dot(world_position.xz, dir_b) * secondary_wave_frequency + wave_time * secondary_wave_speed);
+		VERTEX.y += (wave_a * wave_amplitude) + (wave_b * secondary_wave_amplitude);
+	}
 }
 
 void fragment() {
