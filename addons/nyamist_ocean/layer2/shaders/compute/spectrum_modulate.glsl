@@ -1,6 +1,6 @@
-// Adapted from 2Retr0/GodotOceanWaves (MIT); see THIRD_PARTY_LICENSES.
 #[compute]
 #version 450
+// Adapted from 2Retr0/GodotOceanWaves (MIT); see THIRD_PARTY_LICENSES.
 /**
  * Modulates the JONSWAP wave spectra texture in time and calculates
  * its gradients. Since the outputs are all real-valued, they are packed
