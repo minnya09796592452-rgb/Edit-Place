@@ -4,7 +4,7 @@ Isolated four-grid FFT backend for the existing Godot 4.7 Mobile project.
 
 ## Included
 
-- Four per-grid spectrum resources (`NyaWaveGridSettings`).
+- Four per-grid spectrum resources (`NyaWaveGridSettings`) with Phillips (default) and TMA/JONSWAP modes.
 - GodotOceanWaves-derived TMA/JONSWAP directional spectrum and Stockham FFT compute pipeline.
 - One four-layer GPU displacement texture array (`m_displacementMaps`, layers 0–3).
 - Asynchronous GPU-to-CPU readback for grids 0–2 only.
