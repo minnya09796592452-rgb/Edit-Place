@@ -9,6 +9,7 @@ class_name NyaWaveGridSettings
 @export_range(0.0, 2.0, 0.01) var normal_scale := 1.0
 
 @export_group("Wave Spectrum")
+@export_enum("Phillips:0", "TMA / JONSWAP:1") var spectrum_model := 0
 @export_range(0.1, 40.0, 0.1) var wind_speed := 8.0
 @export_range(-360.0, 360.0, 0.1) var wind_direction := 0.0
 @export_range(0.01, 1000.0, 0.1) var fetch_length := 150.0
