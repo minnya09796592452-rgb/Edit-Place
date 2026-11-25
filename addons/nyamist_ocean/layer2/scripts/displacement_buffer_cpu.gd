@@ -2,14 +2,13 @@ extends RefCounted
 class_name DisplacementBufferCPU
 ## Slot 0 is always the write slot; Slot 1 is always the published read slot.
 
-const InterpolatedField = preload("res://addons/nyamist_ocean/layer2/scripts/interpolated_array2f.gd")
 const SLOT_WRITE := 0
 const SLOT_READ := 1
 const GRID_COUNT := 4
 
 class GridFrame extends RefCounted:
+	const InterpolatedField = preload("res://addons/nyamist_ocean/layer2/scripts/interpolated_array2f.gd")
 	var x
-
 	var y
 	var z
 
