@@ -117,7 +117,7 @@ vec2 get_spectrum_amplitude(in ivec2 id, in ivec2 map_size) {
 		float largest_wave = wind_speed * wind_speed / G;
 		float small_wave = largest_wave * 0.001;
 		vec2 wind_dir = vec2(cos(angle), sin(angle));
-		float directional = dot(normalize(k_vec), wind_dir);
+		float directional = dot(k_vec / k, wind_dir);
 		s = 0.0081 * exp(-1.0 / max(k*k*largest_wave*largest_wave, 1e-6)) * directional*directional * exp(-k*k*small_wave*small_wave) / (k*k*k*k);
 		d = 1.0;
 	} else {
