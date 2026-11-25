@@ -25,7 +25,7 @@ func _test_bilinear_interpolation() -> void:
 
 func _test_cpu_double_buffer() -> void:
 	var buffer = DisplacementBufferCPU.new()
-	buffer.configure(4, Vector2i(2, 2))
+	buffer.configure(3, Vector2i(2, 2))
 	var bytes := PackedByteArray()
 	bytes.resize(2 * 2 * 8)
 	for index in range(4):
