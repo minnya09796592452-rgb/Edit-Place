@@ -1,0 +1,86 @@
+[gd_scene format=3 uid="uid://bek200ljttisa"]
+
+[ext_resource type="Script" uid="uid://ci2eal0atw0t8" path="res://scripts/sun_controller.gd" id="1_sun_ctrl"]
+[ext_resource type="Shader" uid="uid://dp4hoyppv522c" path="res://shaders/sky_bruneton.gdshader" id="2_sky_sdr"]
+[ext_resource type="Texture2D" uid="uid://xaw7ha2a662w" path="res://assets/clouds/CirrusCloudLayer_ID33.png" id="3_cirrus"]
+[ext_resource type="Texture2D" uid="uid://diw0b1gkbo768" path="res://assets/clouds/AltoCumulusCloudLayer_ID36.png" id="4_alto"]
+[ext_resource type="Texture2D" uid="uid://cvn0n8hqp4xmu" path="res://assets/clouds/AltoCumulusCloudNormals_ID66.png" id="5_normals"]
+[ext_resource type="Texture2D" uid="uid://1nwc70oy8kip" path="res://assets/clouds/Overcast_ID108.png" id="6_overcast"]
+[ext_resource type="Texture2D" uid="uid://by863eqwkiifo" path="res://assets/sky/MoonPhase5_ID107.png" id="88_moon_tex"]
+[ext_resource type="Texture2D" uid="uid://dojto1fusy3dw" path="res://assets/sky/stars_texture_ID70.png" id="89_stars_tex"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_sky"]
+shader = ExtResource("2_sky_sdr")
+shader_parameter/cirrus_tex = ExtResource("3_cirrus")
+shader_parameter/altocumulus_tex = ExtResource("4_alto")
+shader_parameter/cloud_normals_tex = ExtResource("5_normals")
+shader_parameter/overcast_tex = ExtResource("6_overcast")
+shader_parameter/moon_tex = ExtResource("88_moon_tex")
+shader_parameter/stars_tex = ExtResource("89_stars_tex")
+shader_parameter/moon_color = Vector3(0.68, 0.8, 0.96)
+shader_parameter/moon_intensity = 0.95
+shader_parameter/moon_size = 0.042
+shader_parameter/stars_intensity = 1.45
+shader_parameter/sun_color = Vector3(1, 0.992222, 0.985294)
+shader_parameter/sun_intensity = 1.41
+shader_parameter/sky_tint = 1.54
+shader_parameter/day_brightness = 8.0
+shader_parameter/day_haziness = 0.18
+shader_parameter/night_haziness = 0.5
+shader_parameter/mie_g = 0.85
+shader_parameter/one_over_gamma = 0.454545
+shader_parameter/storm_intensity = 0.0
+shader_parameter/cloud_coverage = 0.45
+shader_parameter/altocumulus_density = 0.85
+shader_parameter/cirrus_density = 0.35
+shader_parameter/cloud_scattering_intensity = 7.0
+shader_parameter/edge_blur_20 = 0.2
+shader_parameter/cloud_position_offset = Vector2(0.18, -0.12)
+shader_parameter/wind_dir = Vector2(2, 2)
+shader_parameter/wind_speed = 0.05
+shader_parameter/cloud_speed_1 = 0.2
+shader_parameter/cloud_speed_2 = 0.4
+
+[sub_resource type="Sky" id="Sky_bruneton"]
+sky_material = SubResource("ShaderMaterial_sky")
+
+[sub_resource type="Environment" id="Environment_slot"]
+background_mode = 2
+sky = SubResource("Sky_bruneton")
+ambient_light_source = 3
+reflected_light_source = 2
+tonemap_mode = 3
+
+[sub_resource type="SphereMesh" id="SphereMesh_test"]
+radius = 1.5
+height = 3.0
+
+[node name="Atmosphere" type="Node3D" unique_id=44102899]
+script = ExtResource("1_sun_ctrl")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=762010380]
+environment = SubResource("Environment_slot")
+
+[node name="Clouds" type="Node3D" parent="." unique_id=1553103243]
+
+[node name="Illuminaries" type="Node3D" parent="." unique_id=579097557]
+
+[node name="Sun" type="DirectionalLight3D" parent="Illuminaries" unique_id=298179940]
+transform = Transform3D(1, 0, 0, 0, 0.929776, -0.368125, 0, 0.368125, 0.929776, 0, 0, 0)
+light_color = Color(1, 0.992222, 0.985294, 1)
+light_energy = 1.41
+shadow_enabled = true
+shadow_bias = 0.02
+shadow_normal_bias = 0.02
+
+[node name="Halo" type="Node3D" parent="Illuminaries" unique_id=30935958]
+
+[node name="Moon" type="DirectionalLight3D" parent="Illuminaries" unique_id=293207724]
+visible = false
+
+[node name="SunLightTestSphere" type="MeshInstance3D" parent="." unique_id=1271867]
+mesh = SubResource("SphereMesh_test")
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=901422623]
+transform = Transform3D(1, 0, 0, 0, 0.965926, 0.258819, 0, -0.258819, 0.965926, 0, 2, 6)
+current = true
